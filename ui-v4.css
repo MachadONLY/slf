@@ -1,0 +1,183 @@
+@import url('https://fonts.googleapis.com/css2?family=Russo+One&display=swap');
+
+:root {
+  --font-main: 'Russo One', 'Arial Black', Arial, sans-serif;
+  --editor-font: 'Russo One';
+  font-family: var(--font-main);
+}
+
+html,
+body,
+button,
+input,
+textarea,
+select,
+option,
+kbd,
+[contenteditable],
+.workspace-copy,
+.nav-action,
+.section-heading,
+.project-row,
+.page-row,
+.breadcrumbs,
+.save-status,
+.dashboard-header,
+.content-heading,
+.project-card,
+.recent-page-card,
+.editor-toolbar,
+.editor-canvas,
+.modal,
+.toast {
+  font-family: var(--font-main) !important;
+}
+
+.dashboard-header h1,
+.card-body h3,
+.recent-page-copy h3,
+.title-input,
+.modal-header h3,
+.project-page-title,
+.stat strong {
+  font-family: var(--font-main) !important;
+  font-weight: 400 !important;
+}
+
+.editor-canvas,
+.editor-canvas * {
+  font-family: var(--font-main) !important;
+}
+
+.dashboard-header h1 {
+  letter-spacing: -.025em !important;
+}
+
+.title-input {
+  letter-spacing: -.025em !important;
+}
+
+/* O título da coluna direita deve permanecer visível e alinhado ao da esquerda. */
+body:has(#dashboardView:not(.hidden)) .recent-pages-column > .content-heading {
+  visibility: visible !important;
+  pointer-events: auto !important;
+}
+
+body:has(#dashboardView:not(.hidden)) .content-heading h2 {
+  line-height: 1;
+  white-space: nowrap;
+}
+
+/* Russo One é mais larga que a serifada anterior; estes limites evitam quebra. */
+body:has(#dashboardView:not(.hidden)) .project-stack .card-body h3 {
+  font-size: 14px !important;
+  letter-spacing: 0 !important;
+}
+
+body:has(#dashboardView:not(.hidden)) .recent-page-copy h3 {
+  font-size: clamp(20px, 2vw, 25px) !important;
+  letter-spacing: 0 !important;
+}
+
+body:has(#dashboardView:not(.hidden)) .dashboard-header h1 {
+  font-size: clamp(31px, 3.05vw, 44px) !important;
+}
+
+/* Página dedicada a todos os projetos. */
+.projects-page-shell {
+  width: min(1180px, 100%);
+  margin: 0 auto;
+  padding-bottom: 72px;
+}
+
+.projects-page-header {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 24px;
+  margin-bottom: 30px;
+}
+
+.projects-page-header-copy {
+  min-width: 0;
+}
+
+.projects-page-eyebrow {
+  margin: 0 0 9px;
+  color: #817d75;
+  font-size: 8px;
+  letter-spacing: .16em;
+  text-transform: uppercase;
+}
+
+.project-page-title {
+  margin: 0;
+  color: #f2efe8;
+  font-size: clamp(32px, 4vw, 50px);
+  line-height: 1;
+  letter-spacing: -.025em;
+}
+
+.projects-page-subtitle {
+  max-width: 650px;
+  margin: 12px 0 0;
+  color: #77736d;
+  font-size: 11px;
+  line-height: 1.55;
+}
+
+.projects-page-actions {
+  display: flex;
+  flex: 0 0 auto;
+  gap: 9px;
+}
+
+.projects-page-grid {
+  display: grid !important;
+  grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+  gap: 18px !important;
+}
+
+.projects-page-grid .project-card {
+  min-height: 300px;
+}
+
+.projects-page-grid .card-body h3 {
+  font-size: 18px !important;
+  letter-spacing: 0 !important;
+}
+
+@media (max-width: 1050px) {
+  .projects-page-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+  }
+}
+
+@media (max-width: 800px) {
+  .projects-page-header {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .projects-page-actions {
+    width: 100%;
+  }
+
+  .projects-page-actions button {
+    flex: 1;
+  }
+}
+
+@media (max-width: 560px) {
+  .projects-page-grid {
+    grid-template-columns: 1fr !important;
+  }
+
+  .projects-page-grid .project-card {
+    min-height: 260px;
+  }
+
+  .projects-page-actions {
+    flex-direction: column-reverse;
+  }
+}
