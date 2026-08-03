@@ -5,12 +5,10 @@ const path = require('path');
 const HOST = '127.0.0.1';
 const PORT = Number(process.env.PORT || 4180);
 const ROOT = __dirname;
-const BUILD = 'roadmap-v1-20260803';
+const BUILD = 'roadmap-stable-v2-20260803';
 const DATA_DIR = path.join(ROOT, 'data');
 const WORKSPACE_FILE = path.join(DATA_DIR, 'workspace.json');
 const ROADMAP_FILE = path.join(DATA_DIR, 'roadmap.json');
-const liveReloadClients = new Set();
-let reloadTimer = null;
 
 const MIME_TYPES = {
   '.html': 'text/html; charset=utf-8',
@@ -30,21 +28,6 @@ const MIME_TYPES = {
   '.mp3': 'audio/mpeg',
   '.mp4': 'video/mp4'
 };
-
-const LIVE_RELOAD_CLIENT = `
-<script>
-(() => {
-  const connect = () => {
-    const source = new EventSource('/__livereload');
-    source.addEventListener('reload', () => location.reload());
-    source.onerror = () => {
-      source.close();
-      setTimeout(connect, 1000);
-    };
-  };
-  connect();
-})();
-</script>`;
 
 function ensureDataDirectory() {
   fs.mkdirSync(DATA_DIR, { recursive: true });
@@ -143,40 +126,6 @@ function safePath(urlPath) {
   return path.join(ROOT, normalized);
 }
 
-function notifyReload() {
-  clearTimeout(reloadTimer);
-  reloadTimer = setTimeout(() => {
-    for (const response of liveReloadClients) response.write('event: reload\ndata: now\n\n');
-  }, 180);
-}
-
-function shouldIgnoreWatch(filename = '') {
-  const normalized = String(filename).replace(/\\/g, '/');
-  return (
-    normalized.startsWith('.git/') ||
-    normalized.includes('/.git/') ||
-    normalized.startsWith('node_modules/') ||
-    normalized.includes('/node_modules/') ||
-    normalized.startsWith('data/') ||
-    normalized.includes('/data/') ||
-    normalized.endsWith('~') ||
-    normalized.endsWith('.tmp') ||
-    normalized.endsWith('.swp')
-  );
-}
-
-function startWatcher() {
-  try {
-    fs.watch(ROOT, { recursive: true }, (_eventType, filename) => {
-      if (!filename || shouldIgnoreWatch(filename)) return;
-      notifyReload();
-    });
-    console.log('Live reload ativo: alterações e git pull atualizarão o navegador automaticamente.');
-  } catch (error) {
-    console.warn('Live reload indisponível neste sistema:', error.message);
-  }
-}
-
 const server = http.createServer(async (req, res) => {
   const pathname = req.url.split('?')[0];
 
@@ -209,6 +158,7 @@ const server = http.createServer(async (req, res) => {
       ok: true,
       build: BUILD,
       backend: 'local-json',
+      liveReload: false,
       workspaceFile: WORKSPACE_FILE,
       roadmapFile: ROADMAP_FILE
     });
@@ -221,22 +171,10 @@ const server = http.createServer(async (req, res) => {
       root: ROOT,
       port: PORT,
       backend: true,
+      liveReload: false,
       workspaceFile: WORKSPACE_FILE,
       roadmapFile: ROADMAP_FILE
     });
-    return;
-  }
-
-  if (pathname === '/__livereload') {
-    res.writeHead(200, {
-      'Content-Type': 'text/event-stream',
-      'Cache-Control': 'no-cache, no-transform',
-      Connection: 'keep-alive',
-      'Access-Control-Allow-Origin': '*'
-    });
-    res.write(': connected\n\n');
-    liveReloadClients.add(res);
-    req.on('close', () => liveReloadClients.delete(res));
     return;
   }
 
@@ -258,16 +196,6 @@ const server = http.createServer(async (req, res) => {
       }
 
       const extension = path.extname(filePath).toLowerCase();
-      let body = data;
-
-      if (extension === '.html') {
-        const html = data.toString('utf8');
-        body = Buffer.from(
-          html.includes('</body>') ? html.replace('</body>', `${LIVE_RELOAD_CLIENT}\n</body>`) : `${html}${LIVE_RELOAD_CLIENT}`,
-          'utf8'
-        );
-      }
-
       res.writeHead(200, {
         'Content-Type': MIME_TYPES[extension] || 'application/octet-stream',
         'Cache-Control': 'no-store, no-cache, must-revalidate, proxy-revalidate',
@@ -275,15 +203,10 @@ const server = http.createServer(async (req, res) => {
         Expires: '0',
         'X-SLF-Build': BUILD
       });
-      res.end(body);
+      res.end(data);
     });
   });
 });
-
-const heartbeat = setInterval(() => {
-  for (const response of liveReloadClients) response.write(': heartbeat\n\n');
-}, 20000);
-heartbeat.unref();
 
 server.listen(PORT, HOST, () => {
   ensureDataDirectory();
@@ -293,8 +216,9 @@ server.listen(PORT, HOST, () => {
   console.log(`Aplicação: http://localhost:${PORT}`);
   console.log(`Workspace: ${WORKSPACE_FILE}`);
   console.log(`Roadmap: ${ROADMAP_FILE}`);
+  console.log('Live reload: desativado para estabilidade no Windows.');
   console.log(`Diagnóstico: http://localhost:${PORT}/__build\n`);
-  startWatcher();
+  console.log('Após npm run sync, atualize o navegador com Ctrl+R.');
   console.log('Pressione Ctrl+C para encerrar.');
 });
 
