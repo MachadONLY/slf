@@ -68,6 +68,9 @@
 
     frame.dataset.homeReady = 'true';
 
+    const statsStrip = frame.querySelector('.stats-strip');
+    if (statsStrip) statsStrip.remove();
+
     const year = frame.querySelector('.eyebrow');
     if (year && /ARQUIVO PESSOAL/.test(year.textContent)) {
       year.textContent = `ARQUIVO PESSOAL · ${new Date().getFullYear()}`;
