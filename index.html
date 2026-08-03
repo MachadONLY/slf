@@ -8,6 +8,7 @@
   <link rel="manifest" href="manifest.webmanifest" />
   <link rel="icon" href="assets/icon.svg" type="image/svg+xml" />
   <link rel="stylesheet" href="styles.css" />
+  <link rel="stylesheet" href="home-v3.css" />
   <title>Self-Education</title>
 </head>
 <body>
@@ -70,6 +71,7 @@
   <input type="file" id="backupImportInput" accept="application/json" hidden />
 
   <script src="app.js"></script>
+  <script src="home-v3.js"></script>
   <script>
     if ('serviceWorker' in navigator) {
       window.addEventListener('load', () => navigator.serviceWorker.register('./sw.js').catch(() => {}));
