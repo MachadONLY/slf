@@ -5,7 +5,7 @@ const path = require('path');
 const HOST = '127.0.0.1';
 const PORT = Number(process.env.PORT || 4180);
 const ROOT = __dirname;
-const BUILD = 'fresh-home-20260803';
+const BUILD = 'ui-v4-20260803';
 const liveReloadClients = new Set();
 let reloadTimer = null;
 
