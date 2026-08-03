@@ -2,9 +2,10 @@ const http = require('http');
 const fs = require('fs');
 const path = require('path');
 
-const HOST = '0.0.0.0';
-const PORT = Number(process.env.PORT || 4173);
+const HOST = '127.0.0.1';
+const PORT = Number(process.env.PORT || 4180);
 const ROOT = __dirname;
+const BUILD = 'fresh-home-20260803';
 const liveReloadClients = new Set();
 let reloadTimer = null;
 
@@ -54,7 +55,7 @@ function notifyReload() {
     for (const response of liveReloadClients) {
       response.write('event: reload\ndata: now\n\n');
     }
-  }, 160);
+  }, 180);
 }
 
 function shouldIgnoreWatch(filename = '') {
@@ -83,6 +84,15 @@ function startWatcher() {
 }
 
 const server = http.createServer((req, res) => {
+  if (req.url === '/__build') {
+    res.writeHead(200, {
+      'Content-Type': 'application/json; charset=utf-8',
+      'Cache-Control': 'no-store'
+    });
+    res.end(JSON.stringify({ build: BUILD, root: ROOT, port: PORT }, null, 2));
+    return;
+  }
+
   if (req.url === '/__livereload') {
     res.writeHead(200, {
       'Content-Type': 'text/event-stream',
@@ -127,7 +137,8 @@ const server = http.createServer((req, res) => {
         'Content-Type': MIME_TYPES[extension] || 'application/octet-stream',
         'Cache-Control': 'no-store, no-cache, must-revalidate, proxy-revalidate',
         Pragma: 'no-cache',
-        Expires: '0'
+        Expires: '0',
+        'X-SLF-Build': BUILD
       });
       res.end(body);
     });
@@ -140,14 +151,18 @@ const heartbeat = setInterval(() => {
 heartbeat.unref();
 
 server.listen(PORT, HOST, () => {
-  console.log(`\nSelf-Education Workspace rodando em:\nhttp://localhost:${PORT}\n`);
+  console.log('\nSelf-Education Workspace');
+  console.log(`Build: ${BUILD}`);
+  console.log(`Pasta servida: ${ROOT}`);
+  console.log(`Aplicação: http://localhost:${PORT}`);
+  console.log(`Diagnóstico: http://localhost:${PORT}/__build\n`);
   startWatcher();
   console.log('Pressione Ctrl+C para encerrar.');
 });
 
 server.on('error', (error) => {
   if (error.code === 'EADDRINUSE') {
-    console.error(`A porta ${PORT} já está sendo usada. Feche o outro servidor ou rode: set PORT=4174 && npm run dev`);
+    console.error(`A porta ${PORT} já está sendo usada. Feche o processo antigo e tente novamente.`);
   } else {
     console.error(error);
   }
