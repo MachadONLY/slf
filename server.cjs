@@ -5,7 +5,9 @@ const path = require('path');
 const HOST = '127.0.0.1';
 const PORT = Number(process.env.PORT || 4180);
 const ROOT = __dirname;
-const BUILD = 'ui-v4-20260803';
+const BUILD = 'workspace-v5-20260803';
+const DATA_DIR = path.join(ROOT, 'data');
+const DATA_FILE = path.join(DATA_DIR, 'workspace.json');
 const liveReloadClients = new Set();
 let reloadTimer = null;
 
@@ -43,6 +45,93 @@ const LIVE_RELOAD_CLIENT = `
 })();
 </script>`;
 
+function ensureDataDirectory() {
+  fs.mkdirSync(DATA_DIR, { recursive: true });
+}
+
+function jsonResponse(res, status, payload) {
+  const body = payload === null ? '' : JSON.stringify(payload, null, 2);
+  res.writeHead(status, {
+    'Content-Type': 'application/json; charset=utf-8',
+    'Content-Length': Buffer.byteLength(body),
+    'Cache-Control': 'no-store'
+  });
+  res.end(body);
+}
+
+function readRequestJson(req, limitBytes = 15 * 1024 * 1024) {
+  return new Promise((resolve, reject) => {
+    const chunks = [];
+    let size = 0;
+
+    req.on('data', chunk => {
+      size += chunk.length;
+      if (size > limitBytes) {
+        reject(Object.assign(new Error('Payload muito grande.'), { statusCode: 413 }));
+        req.destroy();
+        return;
+      }
+      chunks.push(chunk);
+    });
+
+    req.on('end', () => {
+      try {
+        const raw = Buffer.concat(chunks).toString('utf8');
+        resolve(raw ? JSON.parse(raw) : {});
+      } catch {
+        reject(Object.assign(new Error('JSON inválido.'), { statusCode: 400 }));
+      }
+    });
+
+    req.on('error', reject);
+  });
+}
+
+async function handleWorkspaceApi(req, res) {
+  ensureDataDirectory();
+
+  if (req.method === 'GET') {
+    try {
+      const content = await fs.promises.readFile(DATA_FILE, 'utf8');
+      jsonResponse(res, 200, JSON.parse(content));
+    } catch (error) {
+      if (error.code === 'ENOENT') return jsonResponse(res, 204, null);
+      jsonResponse(res, 500, { error: 'Não foi possível ler o workspace.' });
+    }
+    return;
+  }
+
+  if (req.method === 'PUT') {
+    try {
+      const workspace = await readRequestJson(req);
+      if (!workspace || typeof workspace !== 'object' || !Array.isArray(workspace.projects)) {
+        return jsonResponse(res, 422, { error: 'Estrutura de workspace inválida.' });
+      }
+
+      const temporaryFile = `${DATA_FILE}.tmp`;
+      await fs.promises.writeFile(temporaryFile, JSON.stringify(workspace, null, 2), 'utf8');
+      try {
+        await fs.promises.rename(temporaryFile, DATA_FILE);
+      } catch (error) {
+        if (!['EEXIST', 'EPERM'].includes(error.code)) throw error;
+        await fs.promises.rm(DATA_FILE, { force: true });
+        await fs.promises.rename(temporaryFile, DATA_FILE);
+      }
+      jsonResponse(res, 200, {
+        ok: true,
+        savedAt: new Date().toISOString(),
+        projects: workspace.projects.length
+      });
+    } catch (error) {
+      jsonResponse(res, error.statusCode || 500, { error: error.message || 'Não foi possível salvar o workspace.' });
+    }
+    return;
+  }
+
+  res.writeHead(405, { Allow: 'GET, PUT' });
+  res.end();
+}
+
 function safePath(urlPath) {
   const decoded = decodeURIComponent(urlPath.split('?')[0]);
   const normalized = path.normalize(decoded).replace(/^(\.\.(\/|\\|$))+/, '');
@@ -52,9 +141,7 @@ function safePath(urlPath) {
 function notifyReload() {
   clearTimeout(reloadTimer);
   reloadTimer = setTimeout(() => {
-    for (const response of liveReloadClients) {
-      response.write('event: reload\ndata: now\n\n');
-    }
+    for (const response of liveReloadClients) response.write('event: reload\ndata: now\n\n');
   }, 180);
 }
 
@@ -65,6 +152,8 @@ function shouldIgnoreWatch(filename = '') {
     normalized.includes('/.git/') ||
     normalized.startsWith('node_modules/') ||
     normalized.includes('/node_modules/') ||
+    normalized.startsWith('data/') ||
+    normalized.includes('/data/') ||
     normalized.endsWith('~') ||
     normalized.endsWith('.tmp') ||
     normalized.endsWith('.swp')
@@ -83,17 +172,25 @@ function startWatcher() {
   }
 }
 
-const server = http.createServer((req, res) => {
-  if (req.url === '/__build') {
-    res.writeHead(200, {
-      'Content-Type': 'application/json; charset=utf-8',
-      'Cache-Control': 'no-store'
-    });
-    res.end(JSON.stringify({ build: BUILD, root: ROOT, port: PORT }, null, 2));
+const server = http.createServer(async (req, res) => {
+  const pathname = req.url.split('?')[0];
+
+  if (pathname === '/api/workspace') {
+    await handleWorkspaceApi(req, res);
     return;
   }
 
-  if (req.url === '/__livereload') {
+  if (pathname === '/api/health') {
+    jsonResponse(res, 200, { ok: true, build: BUILD, backend: 'local-json', dataFile: DATA_FILE });
+    return;
+  }
+
+  if (pathname === '/__build') {
+    jsonResponse(res, 200, { build: BUILD, root: ROOT, port: PORT, backend: true, dataFile: DATA_FILE });
+    return;
+  }
+
+  if (pathname === '/__livereload') {
     res.writeHead(200, {
       'Content-Type': 'text/event-stream',
       'Cache-Control': 'no-cache, no-transform',
@@ -106,12 +203,15 @@ const server = http.createServer((req, res) => {
     return;
   }
 
-  let filePath = safePath(req.url === '/' ? '/index.html' : req.url);
+  let filePath = safePath(pathname === '/' ? '/index.html' : pathname);
+  if (filePath.startsWith(DATA_DIR)) {
+    res.writeHead(404, { 'Content-Type': 'text/plain; charset=utf-8' });
+    res.end('Arquivo não encontrado.');
+    return;
+  }
 
   fs.stat(filePath, (statError, stats) => {
-    if (!statError && stats.isDirectory()) {
-      filePath = path.join(filePath, 'index.html');
-    }
+    if (!statError && stats.isDirectory()) filePath = path.join(filePath, 'index.html');
 
     fs.readFile(filePath, (readError, data) => {
       if (readError) {
@@ -126,9 +226,7 @@ const server = http.createServer((req, res) => {
       if (extension === '.html') {
         const html = data.toString('utf8');
         body = Buffer.from(
-          html.includes('</body>')
-            ? html.replace('</body>', `${LIVE_RELOAD_CLIENT}\n</body>`)
-            : `${html}${LIVE_RELOAD_CLIENT}`,
+          html.includes('</body>') ? html.replace('</body>', `${LIVE_RELOAD_CLIENT}\n</body>`) : `${html}${LIVE_RELOAD_CLIENT}`,
           'utf8'
         );
       }
@@ -151,20 +249,19 @@ const heartbeat = setInterval(() => {
 heartbeat.unref();
 
 server.listen(PORT, HOST, () => {
+  ensureDataDirectory();
   console.log('\nSelf-Education Workspace');
   console.log(`Build: ${BUILD}`);
   console.log(`Pasta servida: ${ROOT}`);
   console.log(`Aplicação: http://localhost:${PORT}`);
+  console.log(`Backend: ${DATA_FILE}`);
   console.log(`Diagnóstico: http://localhost:${PORT}/__build\n`);
   startWatcher();
   console.log('Pressione Ctrl+C para encerrar.');
 });
 
-server.on('error', (error) => {
-  if (error.code === 'EADDRINUSE') {
-    console.error(`A porta ${PORT} já está sendo usada. Feche o processo antigo e tente novamente.`);
-  } else {
-    console.error(error);
-  }
+server.on('error', error => {
+  if (error.code === 'EADDRINUSE') console.error(`A porta ${PORT} já está sendo usada. Feche o processo antigo e tente novamente.`);
+  else console.error(error);
   process.exit(1);
 });
