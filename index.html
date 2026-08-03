@@ -1,15 +1,16 @@
 <!doctype html>
-<html lang="pt-BR" data-build="home-viewport-v6-20260803">
+<html lang="pt-BR" data-build="roadmap-v1-20260803">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
   <meta name="theme-color" content="#070708" />
-  <meta name="description" content="Workspace pessoal para estudo, escrita e pesquisa." />
-  <meta name="slf-build" content="home-viewport-v6-20260803" />
+  <meta name="description" content="Workspace pessoal para estudo, escrita, pesquisa e roadmaps visuais." />
+  <meta name="slf-build" content="roadmap-v1-20260803" />
   <link rel="icon" href="assets/icon.svg" type="image/svg+xml" />
-  <link rel="stylesheet" href="styles.css?build=home-viewport-v6-20260803" />
-  <link rel="stylesheet" href="workspace-v5.css?build=home-viewport-v6-20260803" />
-  <link rel="stylesheet" href="home-viewport-v6.css?build=home-viewport-v6-20260803" />
+  <link rel="stylesheet" href="styles.css?build=roadmap-v1-20260803" />
+  <link rel="stylesheet" href="workspace-v5.css?build=roadmap-v1-20260803" />
+  <link rel="stylesheet" href="home-viewport-v6.css?build=roadmap-v1-20260803" />
+  <link rel="stylesheet" href="roadmap-v1.css?build=roadmap-v1-20260803" />
   <title>Self-Education</title>
 </head>
 <body>
@@ -29,6 +30,7 @@
           <button class="nav-action" id="searchButton" aria-label="Buscar"><span>⌕</span><span>Buscar</span><kbd>⌘ K</kbd></button>
           <button class="nav-action" id="homeButton" aria-label="Início"><span>⌂</span><span>Início</span></button>
           <button class="nav-action" id="favoritesButton" aria-label="Favoritos"><span>☆</span><span>Favoritos</span></button>
+          <button class="nav-action" id="roadmapButton" aria-label="Roadmap"><span>◇</span><span>Roadmap</span></button>
         </div>
       </div>
 
@@ -64,17 +66,20 @@
 
       <section id="dashboardView" class="view dashboard-view"></section>
       <section id="editorView" class="view editor-view hidden"></section>
+      <section id="roadmapView" class="view roadmap-view hidden"></section>
     </main>
   </div>
 
   <div id="modalLayer"></div>
   <input type="file" id="coverUploadInput" accept="image/*" hidden />
   <input type="file" id="backupImportInput" accept="application/json" hidden />
+  <input type="file" id="roadmapImageInput" accept="image/*" hidden />
 
-  <script src="workspace-v5.js?build=home-viewport-v6-20260803"></script>
+  <script src="workspace-v5.js?build=roadmap-v1-20260803"></script>
+  <script src="roadmap-v1.js?build=roadmap-v1-20260803"></script>
   <script>
-    window.__SLF_BUILD__ = 'home-viewport-v6-20260803';
-    console.info('[Self-Education] build home-viewport-v6-20260803');
+    window.__SLF_BUILD__ = 'roadmap-v1-20260803';
+    console.info('[Self-Education] build roadmap-v1-20260803');
   </script>
 </body>
 </html>
