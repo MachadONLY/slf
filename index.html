@@ -1,0 +1,79 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <meta name="theme-color" content="#09090a" />
+  <meta name="description" content="Workspace pessoal para estudo, escrita e pesquisa." />
+  <link rel="manifest" href="manifest.webmanifest" />
+  <link rel="icon" href="assets/icon.svg" type="image/svg+xml" />
+  <link rel="stylesheet" href="styles.css" />
+  <title>Self-Education</title>
+</head>
+<body>
+  <div id="app" class="app-shell">
+    <aside id="sidebar" class="sidebar" aria-label="Navegação principal">
+      <div class="sidebar-top">
+        <button class="workspace-switcher" id="workspaceButton" title="Workspace">
+          <span class="workspace-mark">S</span>
+          <span class="workspace-copy">
+            <strong>Self-Education</strong>
+            <small>Gabriel's library</small>
+          </span>
+          <span class="chevron">⌄</span>
+        </button>
+
+        <div class="sidebar-actions">
+          <button class="nav-action" id="searchButton" aria-label="Buscar"><span>⌕</span><span>Buscar</span><kbd>⌘ K</kbd></button>
+          <button class="nav-action" id="homeButton" aria-label="Início"><span>⌂</span><span>Início</span></button>
+          <button class="nav-action" id="favoritesButton" aria-label="Favoritos"><span>☆</span><span>Favoritos</span></button>
+        </div>
+      </div>
+
+      <div class="sidebar-section">
+        <div class="section-heading">
+          <span>PROJETOS</span>
+          <button id="newProjectButton" aria-label="Novo projeto">＋</button>
+        </div>
+        <div id="projectTree" class="project-tree"></div>
+      </div>
+
+      <div class="sidebar-footer">
+        <button class="nav-action" id="importButton"><span>⇩</span><span>Importar backup</span></button>
+        <button class="nav-action" id="exportButton"><span>⇧</span><span>Exportar backup</span></button>
+        <button class="nav-action" id="settingsButton"><span>⚙</span><span>Preferências</span></button>
+      </div>
+    </aside>
+
+    <div id="sidebarScrim" class="sidebar-scrim"></div>
+
+    <main class="main-stage">
+      <header class="topbar">
+        <div class="topbar-left">
+          <button id="mobileMenuButton" class="icon-button mobile-only" aria-label="Abrir menu">☰</button>
+          <div id="breadcrumbs" class="breadcrumbs"></div>
+        </div>
+        <div class="topbar-right">
+          <span id="saveStatus" class="save-status"><span class="status-dot"></span>Salvo localmente</span>
+          <button id="focusButton" class="icon-button" title="Modo foco">◐</button>
+          <button id="moreButton" class="icon-button" title="Mais opções">•••</button>
+        </div>
+      </header>
+
+      <section id="dashboardView" class="view dashboard-view"></section>
+      <section id="editorView" class="view editor-view hidden"></section>
+    </main>
+  </div>
+
+  <div id="modalLayer"></div>
+  <input type="file" id="coverUploadInput" accept="image/*" hidden />
+  <input type="file" id="backupImportInput" accept="application/json" hidden />
+
+  <script src="app.js"></script>
+  <script>
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => navigator.serviceWorker.register('./sw.js').catch(() => {}));
+    }
+  </script>
+</body>
+</html>

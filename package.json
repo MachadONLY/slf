@@ -1,0 +1,10 @@
+{
+  "name": "self-education-workspace",
+  "version": "0.1.1",
+  "private": true,
+  "description": "Dark academic knowledge workspace prototype",
+  "scripts": {
+    "dev": "node server.cjs",
+    "start": "node server.cjs"
+  }
+}

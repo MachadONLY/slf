@@ -1,0 +1,16 @@
+SELF-EDUCATION WORKSPACE — COMO ABRIR
+
+1. Abra esta pasta no VS Code.
+2. Abra o terminal dentro da pasta.
+3. Execute:
+
+   npm run dev
+
+4. Abra no navegador:
+
+   http://localhost:4173
+
+Não é necessário instalar Python nem executar npm install.
+O servidor usa somente o Node.js já instalado no computador.
+
+Para encerrar, pressione Ctrl+C no terminal.
