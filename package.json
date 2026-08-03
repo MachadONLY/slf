@@ -1,12 +1,12 @@
 {
   "name": "self-education-workspace",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "private": true,
-  "description": "Dark academic knowledge workspace prototype",
+  "description": "Dark academic workspace for projects, folders, pages and self-education.",
   "scripts": {
     "dev": "node server.cjs",
-    "fresh": "powershell -NoProfile -ExecutionPolicy Bypass -File ./fresh-start.ps1",
     "start": "node server.cjs",
+    "fresh": "powershell -NoProfile -ExecutionPolicy Bypass -File ./fresh-start.ps1",
     "sync": "git pull --ff-only origin main"
   }
 }
