@@ -1,0 +1,6 @@
+/* Histórico visual será reintroduzido quando a pilha de versões estiver conectada ao backend. */
+#roadmapUndo,
+#roadmapRedo,
+.roadmap-view-tools .roadmap-tool-separator {
+  display: none !important;
+}
