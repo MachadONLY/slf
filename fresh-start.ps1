@@ -7,9 +7,9 @@ foreach ($port in $ports) {
   foreach ($connection in @($connections)) {
     try {
       Stop-Process -Id $connection.OwningProcess -Force -ErrorAction Stop
-      Write-Host "Processo antigo encerrado na porta $port." -ForegroundColor Yellow
+      Write-Host "Processo antigo encerrado na porta ${port}." -ForegroundColor Yellow
     } catch {
-      Write-Host "Nao foi possivel encerrar o processo da porta $port: $($_.Exception.Message)" -ForegroundColor Yellow
+      Write-Host "Nao foi possivel encerrar o processo da porta ${port}: $($_.Exception.Message)" -ForegroundColor Yellow
     }
   }
 }
