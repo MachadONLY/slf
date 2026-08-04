@@ -1,6 +1,10 @@
 node_modules/
 data/workspace.json
 data/workspace.json.tmp
+data/roadmap.json
+data/roadmap.json.tmp
+data/expeditions.json
+data/expeditions.json.tmp
 *.log
 .DS_Store
 Thumbs.db
