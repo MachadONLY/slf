@@ -5,10 +5,11 @@ const path = require('path');
 const HOST = '127.0.0.1';
 const PORT = Number(process.env.PORT || 4180);
 const ROOT = __dirname;
-const BUILD = 'roadmap-stable-v2-20260803';
+const BUILD = 'expeditions-v13-20260804';
 const DATA_DIR = path.join(ROOT, 'data');
 const WORKSPACE_FILE = path.join(DATA_DIR, 'workspace.json');
 const ROADMAP_FILE = path.join(DATA_DIR, 'roadmap.json');
+const EXPEDITIONS_FILE = path.join(DATA_DIR, 'expeditions.json');
 
 const MIME_TYPES = {
   '.html': 'text/html; charset=utf-8',
@@ -153,6 +154,18 @@ const server = http.createServer(async (req, res) => {
     return;
   }
 
+  if (pathname === '/api/expeditions') {
+    await handleJsonDocument(req, res, {
+      filePath: EXPEDITIONS_FILE,
+      validate: payload => payload && typeof payload === 'object' && Array.isArray(payload.expeditions) && Array.isArray(payload.incubator),
+      summary: payload => ({ expeditions: payload.expeditions.length, incubator: payload.incubator.length }),
+      validationError: 'Estrutura de expedições inválida.',
+      readError: 'Não foi possível ler as expedições.',
+      writeError: 'Não foi possível salvar as expedições.'
+    });
+    return;
+  }
+
   if (pathname === '/api/health') {
     jsonResponse(res, 200, {
       ok: true,
@@ -160,7 +173,8 @@ const server = http.createServer(async (req, res) => {
       backend: 'local-json',
       liveReload: false,
       workspaceFile: WORKSPACE_FILE,
-      roadmapFile: ROADMAP_FILE
+      roadmapFile: ROADMAP_FILE,
+      expeditionsFile: EXPEDITIONS_FILE
     });
     return;
   }
@@ -173,7 +187,8 @@ const server = http.createServer(async (req, res) => {
       backend: true,
       liveReload: false,
       workspaceFile: WORKSPACE_FILE,
-      roadmapFile: ROADMAP_FILE
+      roadmapFile: ROADMAP_FILE,
+      expeditionsFile: EXPEDITIONS_FILE
     });
     return;
   }
@@ -216,6 +231,7 @@ server.listen(PORT, HOST, () => {
   console.log(`Aplicação: http://localhost:${PORT}`);
   console.log(`Workspace: ${WORKSPACE_FILE}`);
   console.log(`Roadmap: ${ROADMAP_FILE}`);
+  console.log(`Expedições: ${EXPEDITIONS_FILE}`);
   console.log('Live reload: desativado para estabilidade no Windows.');
   console.log(`Diagnóstico: http://localhost:${PORT}/__build\n`);
   console.log('Após npm run sync, atualize o navegador com Ctrl+R.');
