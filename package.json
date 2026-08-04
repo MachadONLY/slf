@@ -1,8 +1,8 @@
 {
   "name": "self-education-workspace",
-  "version": "0.3.0",
+  "version": "0.4.0",
   "private": true,
-  "description": "Dark academic workspace for projects, folders, pages and self-education.",
+  "description": "Personal education operating system for projects, pages, roadmaps, expeditions and evidence-based self-learning.",
   "scripts": {
     "dev": "node server.cjs",
     "start": "node server.cjs",
