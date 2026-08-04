@@ -1,0 +1,183 @@
+/* Estado inicial do workspace: funcional, responsivo e sem áreas mortas. */
+
+.workspace-home.is-empty-workspace .home-content-grid {
+  align-items: stretch;
+}
+
+.onboarding-empty-project,
+.onboarding-empty-page {
+  min-width: 0;
+}
+
+.onboarding-empty-project {
+  display: grid !important;
+  width: 100%;
+  min-height: 100%;
+  padding: clamp(28px, 4vw, 52px) !important;
+  place-items: center;
+  align-content: center;
+  gap: 18px;
+  border: 1px dashed rgba(195, 165, 111, .22) !important;
+  border-radius: 16px !important;
+  background:
+    radial-gradient(circle at 50% 34%, rgba(195, 165, 111, .07), transparent 30%),
+    linear-gradient(145deg, rgba(255,255,255,.014), transparent 58%) !important;
+  color: var(--brand-paper) !important;
+  text-align: center;
+  transition:
+    border-color .18s ease,
+    background .18s ease,
+    transform .18s ease,
+    box-shadow .18s ease;
+}
+
+.onboarding-empty-project:hover {
+  border-color: rgba(195, 165, 111, .48) !important;
+  background:
+    radial-gradient(circle at 50% 34%, rgba(195, 165, 111, .11), transparent 34%),
+    linear-gradient(145deg, rgba(255,255,255,.025), transparent 62%) !important;
+  box-shadow: 0 20px 58px rgba(0,0,0,.20);
+  transform: translateY(-2px);
+}
+
+.empty-state-symbol {
+  display: grid;
+  width: 48px;
+  height: 48px;
+  place-items: center;
+  border: 1px solid rgba(195, 165, 111, .24);
+  border-radius: 14px;
+  background: rgba(195, 165, 111, .08);
+  color: var(--brand-gold);
+  font-family: var(--font-ui) !important;
+  font-size: 22px;
+  line-height: 1;
+}
+
+.empty-state-copy {
+  display: grid;
+  min-width: 0;
+  gap: 7px;
+  justify-items: center;
+}
+
+.empty-state-copy strong {
+  color: var(--brand-paper);
+  font-family: var(--font-editorial) !important;
+  font-size: clamp(23px, 2vw, 31px);
+  font-weight: 500;
+  letter-spacing: -.035em;
+  line-height: 1.08;
+}
+
+.empty-state-copy small {
+  max-width: 360px;
+  color: #7f817d;
+  font-family: var(--font-ui) !important;
+  font-size: 11px;
+  line-height: 1.6;
+}
+
+.empty-state-action {
+  display: inline-flex;
+  min-height: 38px;
+  padding: 0 16px;
+  align-items: center;
+  justify-content: center;
+  border-radius: 9px;
+  background: rgba(195, 165, 111, .10);
+  color: #d8c39b;
+  font-family: var(--font-ui) !important;
+  font-size: 11px;
+  font-weight: 600;
+}
+
+.recent-page-card.onboarding-empty-page {
+  display: grid !important;
+  min-height: 100%;
+  place-items: center;
+  padding: clamp(28px, 5vw, 64px);
+  border-style: solid !important;
+  background:
+    radial-gradient(circle at 50% 36%, rgba(195, 165, 111, .075), transparent 28%),
+    linear-gradient(160deg, #11151a, #0c0f12 72%) !important;
+}
+
+.empty-page-prompt {
+  display: grid;
+  width: min(420px, 100%);
+  place-items: center;
+  gap: 18px;
+  text-align: center;
+}
+
+.empty-page-button {
+  min-height: 42px;
+  padding-inline: 18px !important;
+  white-space: nowrap;
+}
+
+.workspace-home.is-empty-workspace .project-stack,
+.workspace-home.is-empty-workspace .recent-page-slider {
+  min-height: clamp(360px, 52vh, 620px);
+}
+
+.workspace-home.is-empty-workspace .project-stack {
+  display: grid;
+}
+
+@media (max-width: 1100px) {
+  .workspace-home.is-empty-workspace .project-stack,
+  .workspace-home.is-empty-workspace .recent-page-slider {
+    min-height: clamp(330px, 48vh, 520px);
+  }
+}
+
+@media (max-width: 800px) {
+  .workspace-home.is-empty-workspace .home-content-grid {
+    display: grid !important;
+    grid-template-columns: minmax(0, 1fr) !important;
+    gap: 24px !important;
+  }
+
+  .workspace-home.is-empty-workspace .project-stack,
+  .workspace-home.is-empty-workspace .recent-page-slider {
+    min-height: 310px;
+  }
+
+  .onboarding-empty-project,
+  .recent-page-card.onboarding-empty-page {
+    padding: 30px 22px !important;
+  }
+}
+
+@media (max-width: 520px) {
+  .workspace-home.is-empty-workspace .project-stack,
+  .workspace-home.is-empty-workspace .recent-page-slider {
+    min-height: 280px;
+  }
+
+  .empty-state-copy strong {
+    font-size: 24px;
+  }
+
+  .empty-state-copy small {
+    max-width: 270px;
+    font-size: 10px;
+  }
+
+  .empty-page-button,
+  .empty-state-action {
+    width: 100%;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .onboarding-empty-project {
+    transition: none !important;
+  }
+
+  .onboarding-empty-project:hover {
+    transform: none;
+  }
+}
