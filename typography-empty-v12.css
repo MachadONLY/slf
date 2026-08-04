@@ -1,0 +1,234 @@
+@import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600&family=Newsreader:opsz,wght@6..72,400;6..72,500;6..72,600&display=swap');
+
+/*
+  Self-Education typography v12
+  Newsreader: pensamento, leitura e autoria.
+  IBM Plex Sans: interface compacta e previsível.
+  IBM Plex Mono: código, atalhos e metadados.
+*/
+:root {
+  --font-ui: 'IBM Plex Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  --font-editorial: 'Newsreader', Georgia, 'Times New Roman', serif;
+  --font-mono: 'IBM Plex Mono', 'SFMono-Regular', Consolas, monospace;
+}
+
+html,
+body,
+button,
+input,
+textarea,
+select,
+option,
+[contenteditable] {
+  font-family: var(--font-ui) !important;
+}
+
+.dashboard-header h1,
+.projects-page-header h1,
+.title-input,
+.project-page-title,
+.card-body h3,
+.recent-page-copy h3,
+.empty-state-copy strong,
+.editor-canvas,
+.editor-canvas p,
+.editor-canvas li,
+.editor-canvas blockquote,
+.editor-canvas h1,
+.editor-canvas h2,
+.editor-canvas h3 {
+  font-family: var(--font-editorial) !important;
+}
+
+code,
+pre,
+kbd,
+.editor-canvas code,
+.editor-canvas pre,
+.card-kicker,
+.eyebrow,
+.content-heading h2,
+.projects-page-eyebrow,
+.home-section-note,
+.home-recent-heading-tools > span {
+  font-family: var(--font-mono) !important;
+}
+
+/* A Home deve parecer uma ferramenta, não uma landing page. */
+.home-performance-v11 .dashboard-header h1 {
+  font-size: clamp(34px, 3.45vw, 49px) !important;
+  line-height: .98 !important;
+  letter-spacing: -.035em !important;
+}
+
+.home-performance-v11 .dashboard-header p:not(.eyebrow) {
+  max-width: 640px;
+  font-size: 10px !important;
+}
+
+.home-primary-actions .primary-button,
+.home-primary-actions .secondary-button {
+  min-height: 36px !important;
+  padding: 0 13px !important;
+  border-radius: 8px !important;
+  font-size: 9px !important;
+}
+
+/* Estado vazio de projeto: compacto, silencioso e acionável. */
+.workspace-home.is-empty-workspace .project-stack {
+  align-content: start;
+}
+
+.onboarding-empty-project {
+  display: grid !important;
+  min-height: 184px !important;
+  height: auto !important;
+  padding: 24px !important;
+  grid-template-columns: 34px minmax(0, 1fr);
+  grid-template-areas:
+    'symbol copy'
+    '. action';
+  place-items: initial !important;
+  align-content: center !important;
+  align-items: center;
+  justify-items: start !important;
+  column-gap: 13px !important;
+  row-gap: 13px !important;
+  border-color: rgba(195, 165, 111, .16) !important;
+  border-radius: 13px !important;
+  background:
+    linear-gradient(135deg, rgba(195,165,111,.035), transparent 44%),
+    rgba(255,255,255,.008) !important;
+  text-align: left !important;
+}
+
+.onboarding-empty-project:hover {
+  border-color: rgba(195, 165, 111, .3) !important;
+  background:
+    linear-gradient(135deg, rgba(195,165,111,.055), transparent 48%),
+    rgba(255,255,255,.014) !important;
+  box-shadow: 0 14px 42px rgba(0,0,0,.18) !important;
+  transform: translateY(-1px) !important;
+}
+
+.onboarding-empty-project .empty-state-symbol {
+  grid-area: symbol;
+}
+
+.onboarding-empty-project .empty-state-copy {
+  grid-area: copy;
+  justify-items: start !important;
+  text-align: left;
+}
+
+.onboarding-empty-project .empty-state-action {
+  grid-area: action;
+}
+
+.empty-state-symbol {
+  width: 34px !important;
+  height: 34px !important;
+  border-radius: 9px !important;
+  background: rgba(195, 165, 111, .065) !important;
+  font-size: 16px !important;
+}
+
+.empty-state-copy {
+  gap: 3px !important;
+}
+
+.empty-state-copy strong {
+  font-size: clamp(19px, 1.45vw, 23px) !important;
+  font-weight: 500 !important;
+  letter-spacing: -.025em !important;
+  line-height: 1.05 !important;
+}
+
+.empty-state-copy small {
+  max-width: 330px !important;
+  font-size: 9px !important;
+  line-height: 1.5 !important;
+}
+
+.empty-state-action {
+  min-height: 31px !important;
+  padding: 0 12px !important;
+  border: 1px solid rgba(195,165,111,.14);
+  border-radius: 7px !important;
+  background: rgba(195,165,111,.065) !important;
+  font-size: 9px !important;
+}
+
+/* Estado vazio da página recente: mantém o painel, reduz o espetáculo. */
+.recent-page-card.onboarding-empty-page {
+  padding: clamp(24px, 4vw, 42px) !important;
+  background:
+    radial-gradient(circle at 58% 36%, rgba(195,165,111,.035), transparent 28%),
+    #101419 !important;
+}
+
+.empty-page-prompt {
+  width: min(330px, 100%) !important;
+  gap: 11px !important;
+}
+
+.empty-page-prompt .empty-state-copy strong {
+  font-size: clamp(21px, 2vw, 27px) !important;
+}
+
+.empty-page-prompt .empty-state-copy small {
+  max-width: 300px !important;
+}
+
+.empty-page-button {
+  min-height: 34px !important;
+  width: auto !important;
+  margin-top: 3px;
+  padding: 0 14px !important;
+  border-radius: 8px !important;
+  font-size: 9px !important;
+  font-weight: 600 !important;
+}
+
+@media (max-width: 800px) {
+  .home-performance-v11 .dashboard-header h1 {
+    font-size: clamp(34px, 9.5vw, 46px) !important;
+  }
+
+  .onboarding-empty-project {
+    min-height: 164px !important;
+    padding: 20px !important;
+  }
+
+  .recent-page-card.onboarding-empty-page {
+    min-height: 340px !important;
+  }
+}
+
+@media (max-width: 520px) {
+  .onboarding-empty-project {
+    grid-template-columns: 32px minmax(0, 1fr);
+    padding: 18px !important;
+  }
+
+  .empty-state-copy strong,
+  .empty-page-prompt .empty-state-copy strong {
+    font-size: 20px !important;
+  }
+
+  .empty-page-button,
+  .empty-state-action {
+    width: auto !important;
+  }
+
+  .recent-page-card.onboarding-empty-page {
+    min-height: 300px !important;
+    padding: 22px !important;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .onboarding-empty-project:hover {
+    transform: none !important;
+  }
+}
