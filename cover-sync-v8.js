@@ -16,97 +16,117 @@
     }
   }
 
-  function flattenPages(nodes, output = []) {
-    for (const node of Array.isArray(nodes) ? nodes : []) {
-      if (node?.type === 'page') output.push(node);
-      if (node?.type === 'folder') flattenPages(node.children, output);
-    }
-    return output;
-  }
-
   function validCover(value) {
     return typeof value === 'string' && value.trim().length > 0;
   }
 
-  function coverCandidates(project) {
-    const pages = flattenPages(project?.children)
-      .filter(page => validCover(page.cover))
-      .sort((left, right) => {
-        const leftTime = Number.isFinite(Date.parse(left.updatedAt)) ? Date.parse(left.updatedAt) : 0;
-        const rightTime = Number.isFinite(Date.parse(right.updatedAt)) ? Date.parse(right.updatedAt) : 0;
-        return rightTime - leftTime;
-      });
-
-    return [...new Set([
-      ...pages.map(page => page.cover.trim()),
-      validCover(project?.cover) ? project.cover.trim() : ''
-    ].filter(Boolean))];
-  }
-
-  function removeBrokenImage(cover, image) {
-    image.removeAttribute('src');
-    image.remove();
-    cover.classList.remove('has-synced-cover');
-    cover.classList.add('fallback', 'cover-fallback-visible');
-    delete cover.dataset.syncedCover;
-  }
-
-  function loadCandidate(cover, image, candidates, index) {
-    if (index >= candidates.length) {
-      removeBrokenImage(cover, image);
-      return;
+  function findPage(nodes, pageId) {
+    for (const node of Array.isArray(nodes) ? nodes : []) {
+      if (node?.type === 'page' && String(node.id) === String(pageId)) return node;
+      if (node?.type === 'folder') {
+        const nested = findPage(node.children, pageId);
+        if (nested) return nested;
+      }
     }
+    return null;
+  }
 
-    const source = candidates[index];
-    image.onerror = () => loadCandidate(cover, image, candidates, index + 1);
-    image.onload = () => {
-      cover.classList.remove('fallback', 'cover-fallback-visible');
-      cover.classList.add('has-synced-cover');
-      cover.dataset.syncedCover = source;
-    };
-    image.src = source;
+  function removeImage(container, selector) {
+    container.querySelector(selector)?.remove();
+    delete container.dataset.coverSource;
   }
 
   function applyProjectCover(card, project) {
     const cover = card.querySelector('.card-cover');
     if (!cover) return;
 
-    const candidates = coverCandidates(project);
-    if (!candidates.length) {
-      const existing = cover.querySelector('img');
-      if (existing) removeBrokenImage(cover, existing);
+    const source = validCover(project?.cover) ? project.cover.trim() : '';
+    const selector = 'img[data-cover-role="project"]';
+
+    if (!source) {
+      removeImage(cover, selector);
+      cover.querySelectorAll('img').forEach(image => image.remove());
+      cover.classList.add('fallback', 'cover-fallback-visible');
+      cover.classList.remove('has-synced-cover');
       return;
     }
 
-    const desired = candidates[0];
-    const existingImage = cover.querySelector('img');
-    if (cover.dataset.syncedCover === desired && existingImage?.getAttribute('src') === desired) return;
+    let image = cover.querySelector(selector) || cover.querySelector('img');
+    if (!image) {
+      image = document.createElement('img');
+      cover.prepend(image);
+    }
 
-    const image = existingImage || document.createElement('img');
-    image.alt = `Capa visual do projeto ${project.title || ''}`.trim();
+    image.dataset.coverRole = 'project';
+    image.alt = `Capa do projeto ${project.title || ''}`.trim();
     image.decoding = 'async';
     image.loading = card.closest('.project-stack') ? 'eager' : 'lazy';
     image.draggable = false;
     image.classList.add('synced-project-cover');
 
-    if (!existingImage) cover.prepend(image);
-    loadCandidate(cover, image, candidates, 0);
+    if (cover.dataset.coverSource === source && image.getAttribute('src') === source) return;
+
+    image.onload = () => {
+      cover.dataset.coverSource = source;
+      cover.classList.remove('fallback', 'cover-fallback-visible');
+      cover.classList.add('has-synced-cover');
+    };
+
+    image.onerror = () => {
+      image.remove();
+      delete cover.dataset.coverSource;
+      cover.classList.remove('has-synced-cover');
+      cover.classList.add('fallback', 'cover-fallback-visible');
+    };
+
+    image.src = source;
   }
 
-  function protectRecentPageCovers() {
-    dashboard.querySelectorAll('.recent-page-card img.recent-page-cover').forEach(image => {
-      if (image.dataset.coverGuard === 'true') return;
-      image.dataset.coverGuard = 'true';
-      image.decoding = 'async';
-      image.loading = 'eager';
-      image.draggable = false;
-      image.addEventListener('error', () => {
+  function applyRecentPageCover(card, page) {
+    const source = validCover(page?.cover) ? page.cover.trim() : '';
+    const existingImage = card.querySelector('img.recent-page-cover');
+    const existingFallback = card.querySelector('.recent-page-fallback');
+
+    if (!source) {
+      existingImage?.remove();
+      if (!existingFallback) {
         const fallback = document.createElement('div');
         fallback.className = 'recent-page-cover recent-page-fallback';
         fallback.setAttribute('aria-hidden', 'true');
-        image.replaceWith(fallback);
-      }, { once: true });
-    });
+        card.prepend(fallback);
+      }
+      delete card.dataset.pageCoverSource;
+      return;
+    }
+
+    existingFallback?.remove();
+    const image = existingImage || document.createElement('img');
+    image.className = 'recent-page-cover';
+    image.dataset.coverRole = 'page';
+    image.alt = `Capa da página ${page.title || ''}`.trim();
+    image.decoding = 'async';
+    image.loading = 'eager';
+    image.draggable = false;
+
+    if (!existingImage) card.prepend(image);
+    if (card.dataset.pageCoverSource === source && image.getAttribute('src') === source) return;
+
+    image.onload = () => {
+      card.dataset.pageCoverSource = source;
+    };
+
+    image.onerror = () => {
+      image.remove();
+      delete card.dataset.pageCoverSource;
+      if (!card.querySelector('.recent-page-fallback')) {
+        const fallback = document.createElement('div');
+        fallback.className = 'recent-page-cover recent-page-fallback';
+        fallback.setAttribute('aria-hidden', 'true');
+        card.prepend(fallback);
+      }
+    };
+
+    image.src = source;
   }
 
   function applyCovers() {
@@ -114,11 +134,17 @@
     if (!workspace?.projects?.length) return;
 
     const projectMap = new Map(workspace.projects.map(project => [String(project.id), project]));
+
     dashboard.querySelectorAll('[data-project-card]').forEach(card => {
       const project = projectMap.get(String(card.dataset.projectCard));
       if (project) applyProjectCover(card, project);
     });
-    protectRecentPageCovers();
+
+    dashboard.querySelectorAll('.recent-page-card[data-recent-project][data-recent-page]').forEach(card => {
+      const project = projectMap.get(String(card.dataset.recentProject));
+      const page = project ? findPage(project.children, card.dataset.recentPage) : null;
+      applyRecentPageCover(card, page);
+    });
   }
 
   function scheduleApply() {
@@ -127,9 +153,11 @@
   }
 
   const observer = new MutationObserver(mutations => {
-    if (mutations.some(mutation => mutation.type === 'childList' && (mutation.addedNodes.length || mutation.removedNodes.length))) {
-      scheduleApply();
-    }
+    const changed = mutations.some(mutation =>
+      mutation.type === 'childList' &&
+      [...mutation.addedNodes, ...mutation.removedNodes].some(node => node.nodeType === Node.ELEMENT_NODE)
+    );
+    if (changed) scheduleApply();
   });
 
   observer.observe(dashboard, { childList: true, subtree: true });
@@ -142,5 +170,4 @@
   });
 
   scheduleApply();
-  setTimeout(scheduleApply, 250);
 })();
