@@ -63,8 +63,9 @@
   function openPageModalForProject(projectId) {
     if (!projectId || openingPageModal) return;
 
-    const directButton = projectTree.querySelector(`[data-quick-page="${CSS.escape(String(projectId))}"]`);
-    const quickAddButton = projectTree.querySelector(`[data-quick-add="${CSS.escape(String(projectId))}"]`);
+    const escapedProjectId = window.CSS?.escape ? CSS.escape(String(projectId)) : String(projectId).replace(/["\\]/g, '\\$&');
+    const directButton = projectTree.querySelector(`[data-quick-page="${escapedProjectId}"]`);
+    const quickAddButton = projectTree.querySelector(`[data-quick-add="${escapedProjectId}"]`);
     const target = directButton || quickAddButton;
 
     if (!target) return;
@@ -97,6 +98,9 @@
 
   function enhanceProjectEmptyState(workspace) {
     const emptyProject = dashboard.querySelector('#emptyCreateProject');
+    const home = dashboard.querySelector('.workspace-home');
+    home?.classList.toggle('is-empty-workspace', !(workspace?.projects?.length));
+
     if (!emptyProject) return;
 
     emptyProject.classList.add('onboarding-empty-project');
@@ -112,8 +116,6 @@
         </span>
         <span class="empty-state-action">Criar projeto</span>`;
     }
-
-    dashboard.closest('.workspace-home')?.classList.toggle('is-empty-workspace', !(workspace?.projects?.length));
   }
 
   function enhancePageEmptyState(workspace) {
